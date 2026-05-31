@@ -1,0 +1,4 @@
+# Netlify Redirects
+/pages/* /:splat 200
+/services/* /:splat 200
+/tools/* /:splat 200

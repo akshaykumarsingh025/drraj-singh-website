@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BMI Calculator | Dr. Raj Kumar Singh - Bariatric & Laparoscopic Surgeon Delhi</title>
+  <meta name="description" content="Free Body Mass Index calculator gives out the BMI value and categorizes BMI based on provided information from WHO and CDC for both adults and children.">
+  <meta name="keywords" content="BMI calculator, body mass index, weight loss surgery, bariatric consultation, obesity classification">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/styles.css">
+  <style>
+    :root {
+      --bmi-green: #008137;
+      --bmi-yellow: #ffe400;
+      --bmi-light-red: #d38888;
+      --bmi-red: #bc2020;
+      --bmi-dark-red: #8a0101;
+    }
+    .bmi-page-wrap { max-width: 640px; margin: 0 auto; }
+    .bmi-calc-grid { display: grid; grid-template-columns: 1fr; gap: 24px; margin-top: 32px; }
+    @media (max-width: 768px) { .bmi-calc-grid { grid-template-columns: 1fr; } }
+    .bmi-page-wrap .section-subtitle { margin-left: auto; margin-right: auto; }
+
+    .bmi-panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 32px; }
+
+    .bmi-tabs { display: flex; gap: 0; margin-bottom: 24px; border-bottom: 2px solid var(--border); }
+    .bmi-tab { padding: 10px 24px; font-size: 0.875rem; font-weight: 600; color: var(--text-muted); background: none; border: none; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: var(--transition); font-family: var(--font-body); }
+    .bmi-tab:hover { color: var(--text-secondary); }
+    .bmi-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+    .bmi-field { margin-bottom: 20px; }
+    .bmi-field label { display: block; font-size: 0.8125rem; font-weight: 600; margin-bottom: 6px; color: var(--text); }
+    .bmi-field input[type="number"], .bmi-field input[type="text"] { width: 100%; padding: 12px 16px; border: 1.5px solid var(--border); border-radius: 10px; font-family: var(--font-body); font-size: 0.9375rem; transition: var(--transition); background: var(--surface-alt); color: var(--text); }
+    .bmi-field input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); background: var(--surface); }
+    .bmi-field .field-hint { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
+    .bmi-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    .bmi-radio-group { display: flex; gap: 20px; padding: 8px 0; }
+    .bmi-radio-group label { display: inline-flex; align-items: center; gap: 8px; font-size: 0.9375rem; font-weight: 500; cursor: pointer; }
+    .bmi-radio-group input[type="radio"] { width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; }
+
+    .unit-suffix { position: relative; }
+    .unit-suffix input { padding-right: 48px !important; }
+    .unit-suffix .suffix { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 0.8125rem; color: var(--text-muted); font-weight: 500; pointer-events: none; }
+
+    #bmi-result-panel { display: none; }
+    #bmi-result-panel.show { display: block; }
+
+    .bmi-big-value { font-family: var(--font-display); font-size: 2.5rem; font-weight: 700; color: var(--primary); text-align: center; line-height: 1.1; }
+    .bmi-big-value small { font-size: 1rem; font-weight: 400; color: var(--text-secondary); }
+    .bmi-big-category { text-align: center; font-size: 1.125rem; font-weight: 600; margin-top: 4px; }
+
+    .bmi-gauge-wrap { text-align: center; margin: 24px 0 16px; }
+    .bmi-bar-container { position: relative; width: 100%; height: 60px; margin: 32px 0 8px; }
+    .bmi-bar { width: 100%; height: 28px; border-radius: 14px; background: linear-gradient(90deg, #3B82F6 0%, #3B82F6 24%, #10B981 24%, #10B981 43%, #F59E0B 43%, #F59E0B 57%, #F97316 57%, #F97316 71%, #EF4444 71%, #EF4444 86%, #DC2626 86%, #DC2626 100%); position: relative; overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.15); }
+    .bmi-bar-marker { position: absolute; top: -8px; transform: translateX(-50%); transition: left 0.8s cubic-bezier(0.4, 0, 0.2, 1); z-index: 2; }
+    .bmi-bar-marker .arrow { width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-top: 12px solid #1F2937; margin: 0 auto; }
+    .bmi-bar-marker .marker-label { font-size: 0.75rem; font-weight: 700; color: #1F2937; text-align: center; margin-bottom: 2px; background: #fff; padding: 2px 8px; border-radius: 6px; box-shadow: 0 1px 6px rgba(0,0,0,0.15); white-space: nowrap; }
+    .bmi-bar-labels { display: flex; justify-content: space-between; font-size: 0.6875rem; color: var(--text-muted); padding: 0 2px; }
+    .bmi-bar-labels span { text-align: center; }
+
+    .bmi-details { list-style: none; margin-top: 20px; }
+    .bmi-details li { padding: 10px 0 10px 28px; position: relative; border-bottom: 1px solid var(--border); font-size: 0.9375rem; color: var(--text-secondary); }
+    .bmi-details li:last-child { border-bottom: none; }
+    .bmi-details li::before { content: ''; position: absolute; left: 0; top: 14px; width: 8px; height: 8px; border-radius: 50%; background: var(--primary); }
+    .bmi-details li strong { color: var(--text); }
+
+    .bmi-recommendation { margin-top: 24px; padding: 20px 24px; border-radius: var(--radius); background: var(--primary-light); border-left: 4px solid var(--primary); }
+    .bmi-recommendation.bmi-rec-warning { background: #FEF3C7; border-left-color: #F59E0B; }
+    .bmi-recommendation.bmi-rec-danger { background: #FEE2E2; border-left-color: #EF4444; }
+    .bmi-recommendation.bmi-rec-success { background: #ECFDF5; border-left-color: #10B981; }
+    .bmi-recommendation p { margin: 0; font-size: 0.9375rem; line-height: 1.7; color: var(--text); }
+    .bmi-recommendation strong { color: var(--primary-dark); }
+    .bmi-recommendation .rec-cta { display: inline-block; margin-top: 12px; }
+
+    .bmi-info-section { margin-top: 24px; }
+    .bmi-info-section h3 { font-size: 1.375rem; margin-top: 40px; margin-bottom: 16px; }
+    .bmi-info-section h3:first-child { margin-top: 0; }
+    .bmi-info-section p { color: var(--text-secondary); line-height: 1.8; margin-bottom: 16px; font-size: 0.9375rem; }
+    .bmi-info-section ul { list-style: none; margin-bottom: 24px; }
+    .bmi-info-section ul li { padding: 6px 0 6px 24px; position: relative; color: var(--text-secondary); font-size: 0.9375rem; }
+    .bmi-info-section ul li::before { content: '•'; position: absolute; left: 0; color: var(--primary); font-weight: 700; }
+
+    table.bmi-table { width: 100%; border-collapse: collapse; margin: 16px 0 24px; }
+    table.bmi-table th, table.bmi-table td { padding: 10px 16px; text-align: left; border-bottom: 1px solid var(--border); font-size: 0.9375rem; }
+    table.bmi-table th { background: var(--primary-dark); color: #fff; font-weight: 600; font-family: var(--font-body); font-size: 0.8125rem; text-transform: uppercase; letter-spacing: 0.06em; }
+    table.bmi-table tr:nth-child(even) td { background: var(--surface-alt); }
+    table.bmi-table td:last-child { text-align: center; }
+
+    .formula-block { background: var(--surface-alt); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin: 16px 0 24px; overflow-x: auto; }
+    .formula-block table { margin: 0; }
+    .formula-block td { padding: 2px 4px; font-size: 0.9375rem; color: var(--text-secondary); white-space: nowrap; }
+    .formula-block .frac { display: inline-block; text-align: center; vertical-align: middle; }
+    .formula-block .frac-num, .formula-block .frac-den { display: block; padding: 0 8px; }
+    .formula-block .frac-den { border-top: 2px solid var(--text); }
+
+    .bmi-error { color: #dc2626; font-size: 0.875rem; margin-top: 8px; display: none; }
+    .bmi-error.show { display: block; }
+  </style>
+</head>
+<body>
+
+  <a href="#main" class="skip-link">Skip to main content</a>
+
+  <header class="header" role="banner">
+    <div class="header-inner">
+      <a href="../index.html" class="logo" aria-label="Dr. Raj Kumar Singh Home">
+        <div class="logo-text">
+          <span class="name">Dr. Raj Kumar Singh</span>
+          <span class="subtitle">Bariatric &amp; Laparoscopic Surgeon</span>
+        </div>
+      </a>
+      <nav class="nav" role="navigation" aria-label="Main navigation">
+        <a href="../index.html">Home</a>
+        <a href="../about.html">About</a>
+        <a href="../services.html">Services</a>
+        <a href="../gallery.html">Gallery</a>
+        <a href="bmi-calculator.html" class="active">BMI Calculator</a>
+        <a href="../contact.html">Contact</a>
+        <a href="../contact.html" class="btn-nav">Book Appointment</a>
+      </nav>
+      <button class="hamburger" aria-label="Toggle navigation menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <main id="main">
+
+    <section class="page-header" aria-label="Page title">
+      <div class="container">
+        <nav class="breadcrumbs" aria-label="Breadcrumb">
+          <a href="../index.html">Home</a>
+          <span>/</span>
+          <span class="current">BMI Calculator</span>
+        </nav>
+        <h1>BMI Calculator</h1>
+        <p>Check your Body Mass Index and understand your weight category</p>
+      </div>
+    </section>
+
+    <section class="section" aria-label="BMI calculator tool">
+      <div class="container">
+        <div class="bmi-page-wrap">
+
+          <div class="text-center fade-in">
+            <span class="section-label">Health Tool</span>
+            <h2 class="section-title">Calculate Your BMI</h2>
+            <p class="section-subtitle">Body Mass Index (BMI) is a measure of body fat based on height and weight</p>
+          </div>
+
+          <div class="bmi-calc-grid fade-in fade-in-delay-1">
+
+            <div class="bmi-panel">
+              <div class="bmi-tabs" role="tablist">
+                <button class="bmi-tab active" data-unit="us" role="tab" aria-selected="true">US Units</button>
+                <button class="bmi-tab" data-unit="metric" role="tab" aria-selected="false">Metric Units</button>
+              </div>
+
+              <form id="bmi-form" novalidate>
+                <div class="bmi-field">
+                  <label for="bmi-age">Age</label>
+                  <input type="number" id="bmi-age" value="25" min="2" max="120" step="1" required>
+                  <div class="field-hint">ages: 2 - 120</div>
+                </div>
+
+                <div class="bmi-field">
+                  <label>Gender</label>
+                  <div class="bmi-radio-group">
+                    <label><input type="radio" name="gender" value="male" checked> Male</label>
+                    <label><input type="radio" name="gender" value="female"> Female</label>
+                  </div>
+                </div>
+
+                <div id="bmi-fields-us">
+                  <div class="bmi-field">
+                    <label for="bmi-height-ft">Height</label>
+                    <div class="bmi-field-row">
+                      <div class="unit-suffix">
+                        <input type="number" id="bmi-height-ft" value="5" min="1" max="8" step="1">
+                        <span class="suffix">feet</span>
+                      </div>
+                      <div class="unit-suffix">
+                        <input type="number" id="bmi-height-in" value="10" min="0" max="11" step="1">
+                        <span class="suffix">inches</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="bmi-field">
+                    <label for="bmi-weight-lbs">Weight</label>
+                    <div class="unit-suffix">
+                      <input type="number" id="bmi-weight-lbs" value="160" min="40" max="800" step="0.1">
+                      <span class="suffix">pounds</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div id="bmi-fields-metric" style="display:none;">
+                  <div class="bmi-field">
+                    <label for="bmi-height-cm">Height</label>
+                    <div class="unit-suffix">
+                      <input type="number" id="bmi-height-cm" value="175" min="50" max="300" step="0.1">
+                      <span class="suffix">cm</span>
+                    </div>
+                  </div>
+                  <div class="bmi-field">
+                    <label for="bmi-weight-kg">Weight</label>
+                    <div class="unit-suffix">
+                      <input type="number" id="bmi-weight-kg" value="70" min="20" max="350" step="0.1">
+                      <span class="suffix">kg</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="bmi-error" id="bmi-error"></div>
+
+                <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:8px;">Calculate BMI</button>
+              </form>
+            </div>
+
+            <div class="bmi-panel" id="bmi-result-panel">
+              <div class="bmi-big-value" id="bmi-value-display">BMI = 0.0 <small>kg/m&sup2;</small></div>
+              <div class="bmi-big-category" id="bmi-category-display"></div>
+
+              <div class="bmi-gauge-wrap">
+                <div class="bmi-bar-container" id="bmi-bar-container">
+                  <div class="bmi-bar-marker" id="bmi-marker" style="left:50%;">
+                    <div class="marker-label" id="marker-label">0.0</div>
+                    <div class="arrow"></div>
+                  </div>
+                  <div class="bmi-bar" id="bmi-bar"></div>
+                  <div class="bmi-bar-labels">
+                    <span>Underweight<br>&lt; 18.5</span>
+                    <span>Normal<br>18.5 - 25</span>
+                    <span>Overweight<br>25 - 30</span>
+                    <span>Obese<br>&gt; 30</span>
+                  </div>
+                </div>
+              </div>
+
+              <ul class="bmi-details" id="bmi-details">
+                <li>Healthy BMI range: <strong id="detail-range">18.5 - 25 kg/m&sup2;</strong></li>
+                <li>Healthy weight for the height: <strong id="detail-weight-range">--</strong></li>
+                <li>BMI Prime: <strong id="detail-prime">--</strong></li>
+                <li>Ponderal Index: <strong id="detail-ponderal">-- kg/m&sup3;</strong></li>
+              </ul>
+              <div class="bmi-recommendation" id="bmi-recommendation" style="display:none;">
+                <p id="rec-message"></p>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="bmi-info-section fade-in fade-in-delay-2">
+
+            <h3>BMI introduction</h3>
+            <p>BMI is a measurement of a person's leanness or corpulence based on their height and weight, and is intended to quantify tissue mass. It is widely used as a general indicator of whether a person has a healthy body weight for their height. Specifically, the value obtained from the calculation of BMI is used to categorize whether a person is underweight, normal weight, overweight, or obese depending on what range the value falls between. These ranges of BMI vary based on factors such as region and age, and are sometimes further divided into subcategories such as severely underweight or very severely obese. Being overweight or underweight can have significant health effects, so while BMI is an imperfect measure of healthy body weight, it is a useful indicator of whether any additional testing or action is required. Refer to the table below to see the different categories based on BMI that are used by the calculator.</p>
+
+            <h3>BMI table for adults</h3>
+            <p>This is the World Health Organization's (WHO) recommended body weight based on BMI values for adults. It is used for both men and women, age 20 or older.</p>
+            <table class="bmi-table">
+              <thead>
+                <tr><th>Classification</th><th>BMI range - kg/m&sup2;</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Severe Thinness</td><td>&lt; 16</td></tr>
+                <tr><td>Moderate Thinness</td><td>16 - 17</td></tr>
+                <tr><td>Mild Thinness</td><td>17 - 18.5</td></tr>
+                <tr><td>Normal</td><td>18.5 - 25</td></tr>
+                <tr><td>Overweight</td><td>25 - 30</td></tr>
+                <tr><td>Obese Class I</td><td>30 - 35</td></tr>
+                <tr><td>Obese Class II</td><td>35 - 40</td></tr>
+                <tr><td>Obese Class III</td><td>&gt; 40</td></tr>
+              </tbody>
+            </table>
+
+            <h3>Risks associated with being overweight</h3>
+            <p>Being overweight increases the risk of a number of serious diseases and health conditions. Below is a list of said risks, according to the Centers for Disease Control and Prevention (CDC):</p>
+            <ul>
+              <li>High blood pressure</li>
+              <li>Higher levels of LDL cholesterol, which is widely considered "bad cholesterol," lower levels of HDL cholesterol, considered to be good cholesterol in moderation, and high levels of triglycerides</li>
+              <li>Type II diabetes</li>
+              <li>Coronary heart disease</li>
+              <li>Stroke</li>
+              <li>Gallbladder disease</li>
+              <li>Osteoarthritis, a type of joint disease caused by breakdown of joint cartilage</li>
+              <li>Sleep apnea and breathing problems</li>
+              <li>Certain cancers (endometrial, breast, colon, kidney, gallbladder, liver)</li>
+              <li>Low quality of life</li>
+              <li>Mental illnesses such as clinical depression, anxiety, and others</li>
+              <li>Body pains and difficulty with certain physical functions</li>
+              <li>Generally, an increased risk of mortality compared to those with a healthy BMI</li>
+            </ul>
+            <p>As can be seen from the list above, there are numerous negative, in some cases fatal, outcomes that may result from being overweight. Generally, a person should try to maintain a BMI below 25 kg/m<sup>2</sup>, but ideally should consult their doctor to determine whether or not they need to make any changes to their lifestyle in order to be healthier.</p>
+
+            <h3>Risks associated with being underweight</h3>
+            <p>Being underweight has its own associated risks, listed below:</p>
+            <ul>
+              <li>Malnutrition, vitamin deficiencies, anemia (lowered ability to carry blood vessels)</li>
+              <li>Osteoporosis, a disease that causes bone weakness, increasing the risk of breaking a bone</li>
+              <li>A decrease in immune function</li>
+              <li>Growth and development issues, particularly in children and teenagers</li>
+              <li>Possible reproductive issues for women due to hormonal imbalances that can disrupt the menstrual cycle. Underweight women also have a higher chance of miscarriage in the first trimester</li>
+              <li>Potential complications as a result of surgery</li>
+              <li>Generally, an increased risk of mortality compared to those with a healthy BMI</li>
+            </ul>
+            <p>In some cases, being underweight can be a sign of some underlying condition or disease such as anorexia nervosa, which has its own risks. Consult your doctor if you think you or someone you know is underweight, particularly if the reason for being underweight does not seem obvious.</p>
+
+            <h3>Limitations of BMI</h3>
+            <p>Although BMI is a widely used and useful indicator of healthy body weight, it does have its limitations. BMI is only an estimate that cannot take body composition into account. Due to a wide variety of body types as well as distribution of muscle, bone mass, and fat, BMI should be considered along with other measurements rather than being used as the sole method for determining a person's healthy body weight.</p>
+
+            <p><b>In adults:</b></p>
+            <p>BMI cannot be fully accurate because it is a measure of excess body weight, rather than excess body fat. BMI is further influenced by factors such as age, sex, ethnicity, muscle mass, body fat, and activity level, among others. For example, an older person who is considered a healthy weight, but is completely inactive in their daily life may have significant amounts of excess body fat even though they are not heavy. This would be considered unhealthy, while a younger person with higher muscle composition of the same BMI would be considered healthy. In athletes, particularly bodybuilders who would be considered overweight due to muscle being heavier than fat, it is entirely possible that they are actually at a healthy weight for their body composition. Generally, according to the CDC:</p>
+            <ul>
+              <li>Older adults tend to have more body fat than younger adults with the same BMI.</li>
+              <li>Women tend to have more body fat than men for an equivalent BMI.</li>
+              <li>Muscular individuals and highly trained athletes may have higher BMIs due to large muscle mass.</li>
+            </ul>
+
+            <p><b>In children and adolescents:</b></p>
+            <p>The same factors that limit the efficacy of BMI for adults can also apply to children and adolescents. Additionally, height and level of sexual maturation can influence BMI and body fat among children. BMI is a better indicator of excess body fat for obese children than it is for overweight children, whose BMI could be a result of increased levels of either fat or fat-free mass (all body components except for fat, which includes water, organs, muscle, etc.). In thin children, the difference in BMI can also be due to fat-free mass.</p>
+            <p>That being said, BMI is fairly indicative of body fat for 90-95% of the population, and can effectively be used along with other measures to help determine an individual's healthy body weight.</p>
+
+            <h3>BMI formula</h3>
+            <p>Below are the equations used for calculating BMI in the International System of Units (SI) and the US customary system (USC) using a 5'10", 160-pound individual as an example:</p>
+
+            <div class="formula-block">
+              <table>
+                <tr><td style="padding-bottom:10px;"><b>USC Units:</b></td></tr>
+                <tr><td>BMI = 703 &times; <span class="frac">mass (lbs)<span class="frac-den">height&sup2; (in)</span></span> = 703 &times; <span class="frac">160<span class="frac-den">70&sup2;</span></span> = 23.0</td></tr>
+                <tr><td style="padding-top:16px;"><b>SI, Metric Units:</b></td></tr>
+                <tr><td>BMI = <span class="frac">mass (kg)<span class="frac-den">height&sup2; (m)</span></span> = <span class="frac">72.57<span class="frac-den">1.778&sup2;</span></span> = 23.0</td></tr>
+              </table>
+            </div>
+
+            <h3>BMI Prime</h3>
+            <p>BMI prime is the ratio of a person's measured BMI to the upper limit of BMI that is considered "normal," by institutions such as the WHO and the CDC. Though it may differ in some countries, such as those in Asia, this upper limit, which will be referred to as BMI<sub>upper</sub> is 25 kg/m<sup>2</sup>.</p>
+            <p>The BMI prime formula is:</p>
+            <div class="formula-block">
+              <table><tr><td>BMI prime = <span class="frac">BMI<span class="frac-den">25</span></span></td></tr></table>
+            </div>
+            <p>Since BMI prime is a ratio of two BMI values, BMI prime is a dimensionless value. A person who has a BMI prime less than 0.74 is classified as underweight; from 0.74 to 1 is classified as normal; greater than 1 is classified as overweight; and greater than 1.2 is classified as obese. The table below shows a person's weight classification based on their BMI prime:</p>
+            <table class="bmi-table">
+              <thead>
+                <tr><th>Classification</th><th>BMI</th><th>BMI Prime</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Severe Thinness</td><td>&lt; 16</td><td>&lt; 0.64</td></tr>
+                <tr><td>Moderate Thinness</td><td>16 - 17</td><td>0.64 - 0.68</td></tr>
+                <tr><td>Mild Thinness</td><td>17 - 18.5</td><td>0.68 - 0.74</td></tr>
+                <tr><td>Normal</td><td>18.5 - 25</td><td>0.74 - 1</td></tr>
+                <tr><td>Overweight</td><td>25 - 30</td><td>1 - 1.2</td></tr>
+                <tr><td>Obese Class I</td><td>30 - 35</td><td>1.2 - 1.4</td></tr>
+                <tr><td>Obese Class II</td><td>35 - 40</td><td>1.4 - 1.6</td></tr>
+                <tr><td>Obese Class III</td><td>&gt; 40</td><td>&gt; 1.6</td></tr>
+              </tbody>
+            </table>
+            <p>BMI prime allows us to make a quick assessment of how much a person's BMI differs from the upper limit of BMI that is considered normal. It also allows for comparisons between groups of people who have different upper BMI limits.</p>
+
+            <h3>Ponderal Index</h3>
+            <p>The Ponderal Index (PI) is similar to BMI in that it measures the leanness or corpulence of a person based on their height and weight. The main difference between the PI and BMI is the cubing rather than squaring of the height in the formula (provided below). While BMI can be a useful tool when considering large populations, it is not reliable for determining leanness or corpulence in individuals. Although the PI suffers from similar considerations, the PI is more reliable for use with very tall or short individuals, while BMI tends to record uncharacteristically high or low body fat levels for those on the extreme ends of the height and weight spectrum. Below is the equation for computing the PI of an individual using USC, again using a 5'10", 160-pound individual as an example:</p>
+
+            <div class="formula-block">
+              <table>
+                <tr><td style="padding-bottom:10px;"><b>USC Units:</b></td></tr>
+                <tr><td>PI = <span class="frac">height (in)<span class="frac-den">&cuberoot;mass (lbs)</span></span> = <span class="frac">70<span class="frac-den">&cuberoot;160</span></span> = 12.9</td></tr>
+                <tr><td style="padding-top:16px;"><b>SI, Metric Units:</b></td></tr>
+                <tr><td>PI = <span class="frac">mass (kg)<span class="frac-den">height&sup3; (m)</span></span> = <span class="frac">72.57<span class="frac-den">1.778&sup3;</span></span> = 12.9</td></tr>
+              </table>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <section class="cta-section" aria-label="Call to action">
+      <div class="container">
+        <div class="cta-content fade-in">
+          <h2>Take the First Step Towards Better Health</h2>
+          <p>Consult with Dr. Raj Kumar Singh to explore weight loss solutions tailored to your needs.</p>
+          <div class="cta-actions">
+            <a href="../contact.html" class="btn btn-accent">Book Appointment</a>
+            <a href="tel:+918800220150" class="btn btn-white">Call +91 88002 20150</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer" role="contentinfo">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <h4>Dr. Raj Kumar Singh</h4>
+          <p>Dr. RK Singh is a Senior Surgeon practicing in Delhi for around 15 years, specializing in Bariatric, Laparoscopic, Gastrointestinal &amp; Laser surgeries.</p>
+          <div class="footer-social">
+            <a href="https://youtube.com/@definitecure2717" aria-label="YouTube" target="_blank" rel="noopener">▶</a>
+          </div>
+        </div>
+        <div>
+          <h4>Quick Links</h4>
+          <ul class="footer-links">
+            <li><a href="../index.html">Home</a></li>
+            <li><a href="../about.html">About Us</a></li>
+            <li><a href="../services.html">Services</a></li>
+            <li><a href="../gallery.html">Gallery</a></li>
+            <li><a href="../contact.html">Contact Us</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Services</h4>
+          <ul class="footer-links">
+            <li><a href="../services.html#bariatric">Bariatric Surgery</a></li>
+            <li><a href="../services.html#hernia">Hernia Surgery</a></li>
+            <li><a href="../services.html#laparoscopic">Laparoscopic Surgery</a></li>
+            <li><a href="../services.html#laser-piles">Laser Piles Treatment</a></li>
+            <li><a href="../services.html">View All</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Contact Us</h4>
+          <div class="footer-contact-item">
+            <span class="icon">📍</span>
+            <span>Block H, Metro, 2A, Green Park Ext Rd, New Delhi - 110016</span>
+          </div>
+          <div class="footer-contact-item">
+            <span class="icon">📞</span>
+            <a href="tel:+918800220150">+91 88002 20150</a>
+          </div>
+          <div class="footer-contact-item">
+            <span class="icon">✉️</span>
+            <a href="mailto:drrajkumar31@yahoo.com">drrajkumar31@yahoo.com</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; 2026 Dr. Raj Kumar Singh. All Rights Reserved.</span>
+      <span>Designed for Better Health</span>
+    </div>
+  </footer>
+
+  <script src="../assets/js/main.js"></script>
+
+  <script>
+    (function() {
+      var currentUnit = 'us';
+
+      var tabUs = document.querySelector('.bmi-tab[data-unit="us"]');
+      var tabMetric = document.querySelector('.bmi-tab[data-unit="metric"]');
+      var fieldsUs = document.getElementById('bmi-fields-us');
+      var fieldsMetric = document.getElementById('bmi-fields-metric');
+      var form = document.getElementById('bmi-form');
+      var resultPanel = document.getElementById('bmi-result-panel');
+      var errorEl = document.getElementById('bmi-error');
+
+      tabUs.addEventListener('click', function() { switchUnit('us'); });
+      tabMetric.addEventListener('click', function() { switchUnit('metric'); });
+
+      function switchUnit(unit) {
+        currentUnit = unit;
+        tabUs.classList.toggle('active', unit === 'us');
+        tabUs.setAttribute('aria-selected', unit === 'us');
+        tabMetric.classList.toggle('active', unit === 'metric');
+        tabMetric.setAttribute('aria-selected', unit === 'metric');
+        fieldsUs.style.display = unit === 'us' ? 'block' : 'none';
+        fieldsMetric.style.display = unit === 'metric' ? 'block' : 'none';
+      }
+
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        calculate();
+      });
+
+      function getBMI() {
+        var age = parseInt(document.getElementById('bmi-age').value, 10);
+        if (isNaN(age) || age < 2 || age > 120) {
+          showError('Please enter a valid age between 2 and 120.');
+          return null;
+        }
+
+        if (currentUnit === 'us') {
+          var ft = parseFloat(document.getElementById('bmi-height-ft').value) || 0;
+          var inc = parseFloat(document.getElementById('bmi-height-in').value) || 0;
+          var lbs = parseFloat(document.getElementById('bmi-weight-lbs').value);
+          if (ft < 1 || ft > 8 || inc < 0 || inc > 11) {
+            showError('Please enter a valid height (1-8 feet, 0-11 inches).');
+            return null;
+          }
+          if (isNaN(lbs) || lbs < 40 || lbs > 800) {
+            showError('Please enter a valid weight between 40 and 800 pounds.');
+            return null;
+          }
+          var totalInches = ft * 12 + inc;
+          if (totalInches < 24 || totalInches > 108) {
+            showError('Please enter a valid height.');
+            return null;
+          }
+          var heightM = totalInches * 0.0254;
+          var weightKg = lbs * 0.453592;
+          var bmi = (lbs / (totalInches * totalInches)) * 703;
+          return { bmi: bmi, heightM: heightM, weightKg: weightKg, heightIn: totalInches, weightLbs: lbs };
+        } else {
+          var cm = parseFloat(document.getElementById('bmi-height-cm').value);
+          var kg = parseFloat(document.getElementById('bmi-weight-kg').value);
+          if (isNaN(cm) || cm < 50 || cm > 300) {
+            showError('Please enter a valid height between 50 and 300 cm.');
+            return null;
+          }
+          if (isNaN(kg) || kg < 20 || kg > 350) {
+            showError('Please enter a valid weight between 20 and 350 kg.');
+            return null;
+          }
+          var heightM = cm / 100;
+          var bmi = kg / (heightM * heightM);
+          return { bmi: bmi, heightM: heightM, weightKg: kg, heightCm: cm };
+        }
+      }
+
+      function calculate() {
+        errorEl.classList.remove('show');
+        var result = getBMI();
+        if (!result) return;
+
+        var bmi = result.bmi;
+        var heightM = result.heightM;
+        var weightKg = result.weightKg;
+
+        var category = getCategory(bmi);
+        var color = getCategoryColor(bmi);
+        var healthyMin = 18.5 * heightM * heightM;
+        var healthyMax = 25 * heightM * heightM;
+        var bmiPrime = bmi / 25;
+        var ponderal = weightKg / (heightM * heightM * heightM);
+
+        document.getElementById('bmi-value-display').innerHTML = 'BMI = ' + bmi.toFixed(1) + ' <small>kg/m&sup2;</small>';
+        var catEl = document.getElementById('bmi-category-display');
+        catEl.textContent = '(' + category + ')';
+        catEl.style.color = color;
+
+        document.getElementById('detail-range').textContent = '18.5 - 25 kg/m\u00B2';
+        document.getElementById('detail-weight-range').textContent = healthyMin.toFixed(1) + ' kg - ' + healthyMax.toFixed(1) + ' kg' + (currentUnit === 'us' ? ' (' + (healthyMin * 2.20462).toFixed(1) + ' lbs - ' + (healthyMax * 2.20462).toFixed(1) + ' lbs)' : '');
+        document.getElementById('detail-prime').textContent = bmiPrime.toFixed(1);
+        document.getElementById('detail-ponderal').textContent = ponderal.toFixed(1) + ' kg/m\u00B3';
+
+        resultPanel.classList.add('show');
+        drawGauge(bmi);
+
+        showRecommendation(bmi, weightKg, heightM, category);
+      }
+
+      function showRecommendation(bmi, weightKg, heightM, category) {
+        var el = document.getElementById('bmi-recommendation');
+        var msg = document.getElementById('rec-message');
+        el.style.display = 'block';
+        el.className = 'bmi-recommendation';
+
+        var healthyMin = 18.5 * heightM * heightM;
+        var healthyMax = 25 * heightM * heightM;
+        var unitLabel = 'kg';
+        var unitFactor = 1;
+
+        if (currentUnit === 'us') {
+          unitFactor = 2.20462;
+          unitLabel = 'lbs';
+          healthyMin = healthyMin * unitFactor;
+          healthyMax = healthyMax * unitFactor;
+        }
+
+        if (bmi < 18.5) {
+          var gainMin = Math.ceil((healthyMin - weightKg * unitFactor) / unitFactor) * unitFactor;
+          var gainText = gainMin > 0 ? 'gain approximately <strong>' + gainMin.toFixed(1) + ' ' + unitLabel + '</strong>' : 'reach a healthier weight';
+          msg.innerHTML = 'Your BMI indicates you are <strong>underweight</strong>. You may need to ' + gainText + '. Consult <strong>Dr. Raj Kumar Singh</strong> for expert guidance on healthy weight management and nutritional planning.';
+          el.classList.add('bmi-rec-warning');
+        } else if (bmi < 25) {
+          msg.innerHTML = 'Your BMI is in the <strong>normal</strong> range. Maintain your healthy lifestyle with balanced nutrition and regular exercise. If you have any health concerns, <strong>Dr. Raj Kumar Singh</strong> is here to help.';
+          el.classList.add('bmi-rec-success');
+        } else if (bmi < 30) {
+          var targetW = 24.9 * heightM * heightM;
+          if (currentUnit === 'us') targetW = targetW * unitFactor;
+          var loseW = Math.ceil((weightKg * unitFactor - targetW) / unitFactor) * unitFactor;
+          var loseText = loseW > 0 ? 'approximately <strong>' + loseW.toFixed(1) + ' ' + unitLabel + '</strong>' : 'a healthier weight';
+          msg.innerHTML = 'Your BMI indicates you are <strong>overweight</strong>. Consider losing ' + loseText + ' to reach a healthy BMI. <strong>Dr. Raj Kumar Singh</strong> offers personalized weight management solutions including dietary guidance and medical interventions.';
+          el.classList.add('bmi-rec-warning');
+        } else if (bmi < 35) {
+          var targetW = 24.9 * heightM * heightM;
+          if (currentUnit === 'us') targetW = targetW * unitFactor;
+          var loseW = Math.ceil((weightKg * unitFactor - targetW) / unitFactor) * unitFactor;
+          msg.innerHTML = 'Your BMI indicates <strong>Obesity Class I</strong>. You should consider losing approximately <strong>' + loseW.toFixed(1) + ' ' + unitLabel + '</strong> to reach a healthy BMI. Consult <strong>Dr. Raj Kumar Singh</strong>, a leading bariatric surgeon, for expert evaluation and treatment options.';
+          el.classList.add('bmi-rec-danger');
+        } else if (bmi < 40) {
+          var targetW = 24.9 * heightM * heightM;
+          if (currentUnit === 'us') targetW = targetW * unitFactor;
+          var loseW = Math.ceil((weightKg * unitFactor - targetW) / unitFactor) * unitFactor;
+          msg.innerHTML = 'Your BMI indicates <strong>Obesity Class II</strong>. Significant weight loss of approximately <strong>' + loseW.toFixed(1) + ' ' + unitLabel + '</strong> is recommended. <strong>Dr. Raj Kumar Singh</strong> specializes in bariatric surgery and can help you explore the best treatment path for sustainable weight loss.';
+          el.classList.add('bmi-rec-danger');
+        } else {
+          var targetW = 24.9 * heightM * heightM;
+          if (currentUnit === 'us') targetW = targetW * unitFactor;
+          var loseW = Math.ceil((weightKg * unitFactor - targetW) / unitFactor) * unitFactor;
+          msg.innerHTML = 'Your BMI indicates <strong>Obesity Class III (Severe Obesity)</strong>. Losing approximately <strong>' + loseW.toFixed(1) + ' ' + unitLabel + '</strong> is strongly advised for your health. <strong>Dr. Raj Kumar Singh</strong> is a renowned bariatric surgeon with 15+ years of experience in weight loss surgery. <a href="../contact.html" class="rec-cta btn btn-accent" style="font-size:0.875rem;padding:10px 20px;">Book a Consultation</a>';
+          el.classList.add('bmi-rec-danger');
+        }
+      }
+
+      function showError(msg) {
+        errorEl.textContent = msg;
+        errorEl.classList.add('show');
+        resultPanel.classList.remove('show');
+      }
+
+      function getCategory(bmi) {
+        if (bmi < 16) return 'Severe Thinness';
+        if (bmi < 17) return 'Moderate Thinness';
+        if (bmi < 18.5) return 'Mild Thinness';
+        if (bmi < 25) return 'Normal';
+        if (bmi < 30) return 'Overweight';
+        if (bmi < 35) return 'Obese Class I';
+        if (bmi < 40) return 'Obese Class II';
+        return 'Obese Class III';
+      }
+
+      function getCategoryColor(bmi) {
+        if (bmi < 16) return '#8a0101';
+        if (bmi < 17) return '#bc2020';
+        if (bmi < 18.5) return '#d38888';
+        if (bmi < 25) return '#008137';
+        if (bmi < 30) return '#c8a400';
+        if (bmi < 35) return '#d38888';
+        if (bmi < 40) return '#bc2020';
+        return '#8a0101';
+      }
+
+      function drawGauge(bmi) {
+        var marker = document.getElementById('bmi-marker');
+        var label = document.getElementById('marker-label');
+        var minBmi = 10, maxBmi = 45;
+        var clamped = Math.max(minBmi, Math.min(bmi, maxBmi));
+        var pct = ((clamped - minBmi) / (maxBmi - minBmi)) * 100;
+        marker.style.left = pct + '%';
+        label.textContent = bmi.toFixed(1);
+      }
+
+      switchUnit('us');
+    })();
+  </script>
+
+</body>
+</html>
