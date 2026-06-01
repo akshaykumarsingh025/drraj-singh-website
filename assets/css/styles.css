@@ -231,15 +231,16 @@ h4 { font-size: 1.125rem; }
 
 .logo-text .name {
   font-family: var(--font-display);
-  font-size: 1.125rem;
+  font-size: 1.375rem;
   font-weight: 700;
   color: var(--text);
   line-height: 1.2;
 }
 
 .logo-text .subtitle {
-  font-size: 0.6875rem;
-  color: var(--text-muted);
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--accent);
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
@@ -327,8 +328,8 @@ h4 { font-size: 1.125rem; }
 /* Split hero layout */
 .hero-split-inner {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 48px;
+  grid-template-columns: 1.2fr 0.8fr 1fr;
+  gap: 32px;
   align-items: center;
   min-height: calc(100vh - var(--header-height) - 80px);
 }
@@ -346,7 +347,7 @@ h4 { font-size: 1.125rem; }
   border-radius: 20px;
   overflow: hidden;
   box-shadow: 0 24px 60px rgba(0,0,0,0.3);
-  aspect-ratio: 4/3;
+  aspect-ratio: 3/4;
 }
 
 .hero-media-frame::after {
@@ -363,6 +364,66 @@ h4 { font-size: 1.125rem; }
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
+}
+
+.hero-form-inner {
+  background: #fff;
+  padding: 28px;
+  border-radius: 16px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+}
+
+.hero-form-inner h3 {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: var(--text);
+}
+
+.hero-form-inner p {
+  font-size: 0.8125rem;
+  color: #374151 !important;
+  margin-bottom: 12px;
+}
+
+.hero-form-inner .form-group {
+  margin-bottom: 10px;
+}
+
+.hero-form-inner input,
+.hero-form-inner textarea {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  background: var(--bg);
+  color: var(--text);
+  transition: border-color 0.2s;
+}
+
+.hero-form-inner input:focus,
+.hero-form-inner textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.hero-form-inner .field-error {
+  display: none;
+  font-size: 0.75rem;
+  color: #DC2626;
+  margin-top: 4px;
+}
+
+.hero-form-inner input.invalid,
+.hero-form-inner textarea.invalid {
+  border-color: #DC2626;
+}
+
+.hero-form-inner .field-error.show {
   display: block;
 }
 
@@ -838,6 +899,23 @@ h4 { font-size: 1.125rem; }
 .form-group textarea {
   min-height: 120px;
   resize: vertical;
+}
+
+.form-group .field-error {
+  display: none;
+  font-size: 0.75rem;
+  color: #DC2626;
+  margin-top: 4px;
+}
+
+.form-group input.invalid,
+.form-group textarea.invalid {
+  border-color: #DC2626;
+  box-shadow: 0 0 0 3px rgba(220,38,38,0.1);
+}
+
+.form-group .field-error.show {
+  display: block;
 }
 
 .form-row {
@@ -1349,4 +1427,46 @@ h4 { font-size: 1.125rem; }
 
 .skip-link:focus {
   top: 0;
+}
+
+/* Floating Action Buttons */
+.floating-btns {
+  position: fixed;
+  bottom: 24px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 24px;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.floating-btns a {
+  pointer-events: auto;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  text-decoration: none;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.floating-btns a:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 28px rgba(0,0,0,0.35);
+}
+
+.floating-btns .fab-phone {
+  background: #0d9488;
+  color: #fff;
+}
+
+.floating-btns .fab-whatsapp {
+  background: #25D366;
+  color: #fff;
 }

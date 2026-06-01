@@ -55,7 +55,7 @@
               Senior Consultant Surgeon with 15+ years of experience in Bariatric, Laparoscopic, Gastrointestinal &amp; Laser surgeries. Advanced minimally invasive techniques for faster recovery.
             </p>
             <div class="hero-actions fade-in fade-in-delay-3">
-              <a href="contact.html" class="btn btn-accent">Book Consultation</a>
+              <a href="#hero-form" class="btn btn-accent">Book Consultation</a>
               <a href="services.html" class="btn btn-white">Explore Services</a>
             </div>
             <div class="hero-stats-tag fade-in fade-in-delay-4">
@@ -75,9 +75,29 @@
           </div>
           <div class="hero-media fade-in fade-in-delay-2">
             <div class="hero-media-frame">
-              <video autoplay muted loop playsinline poster="assets/user/IMG_4590.PNG">
-                <source src="assets/user/RajpreparingforOT.MOV" type="video/quicktime">
-              </video>
+              <img src="assets/user/IMG_4590.PNG" alt="Dr. Raj Kumar Singh" style="width:100%;height:100%;object-fit:cover;border-radius:20px;">
+            </div>
+          </div>
+          <div class="hero-form fade-in fade-in-delay-3" id="hero-form">
+            <div class="hero-form-inner">
+              <h3>Book a Consultation</h3>
+              <p>Fill in your details and our team will contact you soon.</p>
+              <form name="hero-contact" method="POST" data-netlify="true" novalidate>
+                <input type="hidden" name="form-name" value="hero-contact">
+                <div class="form-group">
+                  <input type="text" name="name" placeholder="Your name" required minlength="2">
+                  <span class="field-error"></span>
+                </div>
+                <div class="form-group">
+                  <input type="tel" name="phone" placeholder="Phone number" required pattern="[0-9]{10}" maxlength="10">
+                  <span class="field-error"></span>
+                </div>
+                <div class="form-group">
+                  <textarea name="message" placeholder="Brief description..." rows="3" required minlength="10"></textarea>
+                  <span class="field-error"></span>
+                </div>
+                <button type="submit" class="btn btn-accent" style="width:100%;justify-content:center;">Send</button>
+              </form>
             </div>
           </div>
         </div>
@@ -168,7 +188,7 @@
           <div class="about-image fade-in">
             <div style="border-radius:20px;overflow:hidden;box-shadow:var(--shadow-lg);aspect-ratio:4/3;">
               <video autoplay muted loop playsinline poster="assets/user/IMG_4389.PNG" style="width:100%;height:100%;object-fit:cover;">
-                <source src="assets/user/RajpreparingforOT.MOV" type="video/quicktime">
+                <source src="assets/user/RajpreparingforOT.mp4" type="video/mp4">
               </video>
             </div>
             <div class="about-qualifications">
@@ -335,6 +355,66 @@
   </footer>
 
   <script src="assets/js/main.js"></script>
+  <script>
+    var GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbzGFphw7kMFLyaRj8LNoxENx6ZjAD9SRCSs0XDaYN_xCYHUD2bccizbV7Kkoei3eBd4/exec';
+
+    function showHeroPopup() {
+      var overlay = document.createElement('div');
+      overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:9999;';
+      overlay.innerHTML = '<div style="background:#fff;padding:40px;border-radius:16px;text-align:center;max-width:400px;margin:20px;box-shadow:0 20px 60px rgba(0,0,0,0.3);"><div style="font-size:3rem;margin-bottom:16px;">✓</div><h3 style="color:#0d9488;margin-bottom:8px;">Request Sent!</h3><p style="color:#666;margin-bottom:24px;">We will get back to you shortly.</p><button onclick="this.closest(\'div\').parentElement.remove()" style="background:#0d9488;color:#fff;border:none;padding:10px 32px;border-radius:8px;font-size:1rem;cursor:pointer;">OK</button></div>';
+      overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
+      document.body.appendChild(overlay);
+    }
+
+    function clearErrors(form) {
+      var errs = form.querySelectorAll('.field-error');
+      var inv = form.querySelectorAll('.invalid');
+      for (var i = 0; i < errs.length; i++) { errs[i].textContent = ''; errs[i].classList.remove('show'); }
+      for (var i = 0; i < inv.length; i++) { inv[i].classList.remove('invalid'); }
+    }
+
+    function showError(input, msg) {
+      input.classList.add('invalid');
+      var err = input.parentElement.querySelector('.field-error');
+      if (err) { err.textContent = msg; err.classList.add('show'); }
+    }
+
+    document.querySelector('form[name="hero-contact"]').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var form = e.target;
+      clearErrors(form);
+      var valid = true;
+
+      var name = form.name.value.trim();
+      if (!name || name.length < 2) { showError(form.name, 'Please enter your name'); valid = false; }
+
+      var phone = form.phone.value.trim();
+      if (!phone) { showError(form.phone, 'Phone number is required'); valid = false; }
+      else if (!/^[0-9]{10}$/.test(phone)) { showError(form.phone, 'Enter a valid 10-digit number'); valid = false; }
+
+      var message = form.message.value.trim();
+      if (!message || message.length < 10) { showError(form.message, 'Please enter at least 10 characters'); valid = false; }
+
+      if (!valid) return;
+
+      var data = { name: name, email: '', phone: phone, service: '', message: message };
+
+      fetch(GOOGLE_SHEET_URL, {
+        method: 'POST',
+        body: JSON.stringify(data),
+        mode: 'no-cors'
+      }).then(function() {
+        form.reset();
+        showHeroPopup();
+      }).catch(function() {
+        alert('Something went wrong. Please try again.');
+      });
+    });
+  </script>
+  <div class="floating-btns">
+    <a href="tel:+918800220150" class="fab-phone" aria-label="Call us">📞</a>
+    <a href="https://wa.me/918800220150" class="fab-whatsapp" aria-label="WhatsApp us" target="_blank" rel="noopener">💬</a>
+  </div>
 </body>
 </html>
 
