@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /assets/user/
+
+Sitemap: https://drrajkumarsingh.com/sitemap.xml
