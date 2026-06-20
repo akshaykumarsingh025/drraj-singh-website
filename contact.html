@@ -266,15 +266,25 @@
 
       var data = { name: name, email: email, phone: phone, service: form.service.value, message: message };
 
+      // Capture Netlify form data BEFORE reset (FormData is a snapshot at call time)
+      var netlifyData = new URLSearchParams(new FormData(form)).toString();
+
+      // Send to Google Sheet. Using text/plain (no preflight, no opaque response)
+      // so real network/server errors actually reject instead of being swallowed.
       fetch(GOOGLE_SHEET_URL, {
         method: 'POST',
-        body: JSON.stringify(data),
-        mode: 'no-cors'
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(data)
       }).then(function() {
+        // Mirror to Netlify Forms (best-effort, fire-and-forget)
+        fetch('/', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: netlifyData }).catch(function(){});
         form.reset();
         showPopup();
       }).catch(function() {
-        form.submit();
+        // Google Sheet unreachable. Still record on Netlify so the message isn't lost.
+        fetch('/', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: netlifyData }).catch(function(){});
+        form.reset();
+        showPopup();
       });
     });
   </script>
